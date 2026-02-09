@@ -94,7 +94,7 @@ const formatCurrency = (val, currencyCode) => {
     <div class="zakat-input-group">
       <div class="label-row">
         <label>Gold Weight</label>
-        <span class="exempt-link">May be exempt</span>
+        <span class="exempt-link">Approx Equivalent</span>
       </div>
 
       <div class="input-wrapper">
@@ -119,7 +119,7 @@ const formatCurrency = (val, currencyCode) => {
     <div class="zakat-input-group">
       <div class="label-row">
         <label>Silver Weight</label>
-        <span class="exempt-link">May be exempt</span>
+        <span class="exempt-link">Approx Equivalent</span>
       </div>
 
       <div class="input-wrapper">
@@ -211,7 +211,7 @@ const formatCurrency = (val, currencyCode) => {
   margin-right: auto;
 }
 
-/* 2. Top Row: Label and "May be exempt" link */
+/* 2. Top Row: Label and "Approx Equivalent" link */
 .label-row {
   display: flex;
   justify-content: space-between;
