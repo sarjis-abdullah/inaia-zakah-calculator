@@ -6,12 +6,14 @@ import { useCurrencyStore } from "@/stores/currency";
 const currencyStore = useCurrencyStore();
 const { appCurrency } = storeToRefs(currencyStore);
 import { getCurrencySymbol } from "@/hooks/useCurrencyHelper";
+import Header from "@/components/Header.vue";
 // const aaa = getCurrencySymbol();
 </script>
 
 <template>
   <header>
-    <div class="">
+    <Header />
+    <div class="" v-if="false">
       <nav
         style="
           margin-left: 17px;

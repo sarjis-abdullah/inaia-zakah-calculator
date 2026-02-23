@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, reactive } from "vue";
+import BaseZakatInput from "@/components/BaseTextField.vue";
 
 // 1. App State
 const currentStep = ref(1);
@@ -38,6 +39,36 @@ const zakatDue = computed(() => {
 // 3. Navigation
 const nextStep = () => currentStep.value++;
 const prevStep = () => currentStep.value--;
+
+const unit = ref("euro"); // Default selection
+
+const setUnit = (val) => {
+  unit.value = val;
+};
+
+const options = ref([
+  {
+    title: "Gold and Silver",
+    id: 1,
+    selected: false,
+  },
+  {
+    title: "Money / Savings",
+    id: 2,
+    selected: false,
+  },
+  {
+    title: "Business Assets",
+    id: 3,
+    selected: false,
+  },
+]);
+const selectOption = (id) => {
+  options.value = options.value.map((option) => ({
+    ...option,
+    selected: option.id === id ? !option.selected : option.selected,
+  }));
+};
 </script>
 <template>
   <div class="zakat-card">
@@ -58,14 +89,23 @@ const prevStep = () => currentStep.value--;
           receive more information in a later step.</span
         >
       </p>
-      <div class="checkbox-group">
+      <div class="flex gap-1 wrap">
+        <button
+          v-for="value in options"
+          @click="selectOption(value.id)"
+          :class="['tab-btn p-3', { 'active-tab': value.selected }]"
+        >
+          {{ value.title }}
+        </button>
+      </div>
+      <!-- <div class="checkbox-group">
         <label class="custom-checkbox">
           <input type="checkbox" checked /> <span>Gold and Silver</span>
         </label>
         <label class="custom-checkbox">
           <input type="checkbox" checked /> <span>Money / Savings</span>
         </label>
-      </div>
+      </div> -->
     </div>
 
     <div v-if="currentStep === 2" class="fade-in">
@@ -76,7 +116,13 @@ const prevStep = () => currentStep.value--;
         Enter the total amount of your assets below, including checking, savings
         accounts and savings under your mattress.
       </p>
-      <div class="input-wrapper">
+      <BaseZakatInput
+        v-model="form.money"
+        label="Enter Amount"
+        prefix="€"
+        placeholder="0.00"
+      />
+      <!-- <div class="input-wrapper">
         <span class="currency-symbol">€</span>
         <input
           v-model.number="form.money"
@@ -84,7 +130,7 @@ const prevStep = () => currentStep.value--;
           class="main-input"
           placeholder="0.00"
         />
-      </div>
+      </div> -->
     </div>
 
     <div v-if="currentStep === 3" class="fade-in">
@@ -96,23 +142,51 @@ const prevStep = () => currentStep.value--;
           (switch to grams to do this).
         </p>
       </header>
+      <div class="flex justify-end">
+        <div class="tab-container">
+          <button
+            @click="setUnit('euro')"
+            :class="['tab-btn p-1', { 'active-tab': unit === 'euro' }]"
+          >
+            €
+          </button>
+          <button
+            @click="setUnit('gram')"
+            :class="['tab-btn p-1', { 'active-tab': unit === 'gram' }]"
+          >
+            g
+          </button>
+        </div>
+      </div>
       <div class="form-grid">
-        <div class="field">
+        <BaseZakatInput
+          v-model="form.goldWeight"
+          label="Gold Weight"
+          :prefix="unit === 'euro' ? '€' : 'g'"
+          placeholder="Enter grams"
+        />
+        <BaseZakatInput
+          v-model="form.silverWeight"
+          label="Silver Weight"
+          :prefix="unit === 'euro' ? '€' : 'g'"
+          placeholder="Enter grams"
+        />
+        <!-- <div class="field">
           <label>Gold (Grams)</label>
           <input
             v-model.number="form.goldWeight"
             type="number"
             placeholder="0"
           />
-        </div>
-        <div class="field">
+        </div> -->
+        <!-- <div class="field">
           <label>Silver (g)</label>
           <input
             v-model.number="form.silverWeight"
             type="number"
             placeholder="0"
           />
-        </div>
+        </div> -->
         <!-- <div class="field full">
           <label>Deductible Debts (€)</label>
           <input v-model.number="form.debts" type="number" placeholder="0.00" />
@@ -231,7 +305,7 @@ const prevStep = () => currentStep.value--;
 
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 15px;
 }
 .field.full {
@@ -327,5 +401,47 @@ const prevStep = () => currentStep.value--;
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Tab Container */
+.tab-container {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+/* Individual Tab Buttons */
+.p-1 {
+  padding: 4px;
+}
+.tab-btn {
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+/* Active State (Blue) */
+.tab-btn.active-tab {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+.tab-btn:hover:not(.active-tab) {
+  color: #1e293b;
+}
+
+/* Adjusting the grid for the tabs */
+.form-grid {
+  margin-top: 10px;
+}
+.p-3 {
+  padding: 12px;
 }
 </style>

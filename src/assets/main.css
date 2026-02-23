@@ -3,7 +3,7 @@
 #app {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  /* padding: 2rem; */
   font-weight: normal;
 }
 
@@ -32,4 +32,19 @@ a,
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
   } */
+}
+.mt-8 {
+  margin-top: 2rem;
+}
+.flex {
+  display: flex;
+}
+.justify-end {
+  justify-content: flex-end;
+}
+.wrap {
+  flex-wrap: wrap;
+}
+.gap-1 {
+  gap: 0.25rem;
 }
