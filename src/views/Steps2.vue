@@ -106,7 +106,7 @@ const prevStep = () => currentStep.value--;
           />
         </div>
         <div class="field">
-          <label>Silver (Grams)</label>
+          <label>Silver (g)</label>
           <input
             v-model.number="form.silverWeight"
             type="number"
