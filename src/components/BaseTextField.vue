@@ -11,7 +11,8 @@
       <input
         type="number"
         class="custom-input"
-        v-model="goldAmount"
+        :value="modelValue"
+        @input="$emit('update:modelValue', $event.target.value)"
         :placeholder="placeholder"
       />
 
@@ -46,9 +47,6 @@ defineEmits(["update:modelValue"]);
 
 <style scoped>
 .zakat-input-group {
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
   max-width: 500px; /* Adjust width as needed */
   /* margin: 20px; */
   /* margin-left: auto;

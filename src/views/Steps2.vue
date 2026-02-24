@@ -1,11 +1,11 @@
 <script setup>
-import { ref, computed, reactive } from "vue";
+import { ref, computed, reactive, onMounted } from "vue";
 import BaseZakatInput from "@/components/BaseTextField.vue";
 
 // 1. App State
 const currentStep = ref(1);
 const nisabLimit = 11458.82; // Example static value
-const goldPricePerGram = 65.5; // Fetch from API in a real app
+const goldPricePerGram = ref(0); // Fetch from API in a real app
 const silverPricePerGram = 0.85;
 
 const form = reactive({
@@ -16,35 +16,14 @@ const form = reactive({
   debts2: 0,
 });
 
-// 2. Calculations
-const totalAssets = computed(() => {
-  return (
-    form.money +
-    form.goldWeight * goldPricePerGram +
-    form.silverWeight * silverPricePerGram
-  );
-});
-
-const zakatableAmount = computed(() => {
-  const net = totalAssets.value - form.debts;
-  return net > 0 ? net : 0;
-});
-
-const zakatDue = computed(() => {
-  if (zakatableAmount.value >= nisabLimit) {
-    return (zakatableAmount.value * 0.025).toFixed(2);
-  }
-  return 0;
-});
-
 // 3. Navigation
 const nextStep = () => currentStep.value++;
 const prevStep = () => currentStep.value--;
 
-const unit = ref("euro"); // Default selection
+const metalUnit = ref("gram"); // Default selection
 
 const setUnit = (val) => {
-  unit.value = val;
+  metalUnit.value = val;
 };
 
 const options = ref([
@@ -64,6 +43,7 @@ const options = ref([
     selected: false,
   },
 ]);
+
 const selectOption = (id) => {
   options.value = options.value.map((option) => ({
     ...option,
@@ -72,6 +52,108 @@ const selectOption = (id) => {
 };
 const steps = [1, 2, 3, 4, 5];
 const previewStep = ref(1);
+const BASE_URL = "https://golddinar-api-staging.inaia.cloud/api/v1/";
+const getGoldPrice = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}gold-price/latest`);
+    const data = await response.json();
+    if (data && data.data && data.data.fixing_gram_eur) {
+      goldPricePerGram.value = data.data.fixing_gram_eur;
+    }
+    return Promise.resolve(data);
+  } catch (error) {
+    console.error("Error fetching gold price:", error);
+    return Promise.reject(error); // Fallback to static value
+  }
+};
+
+const goldApiData = ref({
+  fixing_gram_eur: 140.28,
+  fixing_gram_gbp: 122.53,
+  fixing_ounce_eur: 4363.06,
+  fixing_ounce_gbp: 3811.25,
+  type: "day",
+  price_date: "2026-02-23",
+  source: "lbma",
+});
+const silverApiData = ref({
+  fixing_gram_eur: 2.04,
+  fixing_gram_gbp: 1.78,
+  fixing_ounce_eur: 53.57,
+  fixing_ounce_gbp: 46.82,
+  type: "day",
+  price_date: "2026-02-23",
+  source: "lbma",
+});
+const goldEquivalentCurrencyValue = computed(() => {
+  const amount = parseFloat(form.goldWeight);
+  if (isNaN(amount) || amount <= 0) {
+    return "0.00";
+  }
+  return (amount * goldApiData.value.fixing_gram_eur).toFixed(2);
+});
+
+const silverEquivalentCurrencyValue = computed(() => {
+  const amount = parseFloat(form.silverWeight);
+  if (isNaN(amount) || amount <= 0) {
+    return "0.00";
+  }
+  return (amount * silverApiData.value.fixing_gram_eur).toFixed(2);
+});
+
+// 2. CONSTANTS
+// Nisab is the threshold wealth must reach to be liable for Zakat.
+// Standard Gold Nisab is 85 grams of 24k gold.
+const GOLD_NISAB_GRAMS = 87.48;
+const SILVER_NISAB_GRAMS = 612.36;
+
+// Total Net Worth in EUR
+const debts = computed(() => {
+  let totalDebts = parseFloat(form.debts) || 0;
+  totalDebts += parseFloat(form.debts2) || 0;
+  return totalDebts.toFixed(2);
+});
+const totalNetWorth = computed(() => {
+  const gold = parseFloat(goldEquivalentCurrencyValue.value) || 0;
+  const silver = parseFloat(silverEquivalentCurrencyValue.value) || 0;
+  const cash = parseFloat(form.money) || 0;
+  const total = gold + silver + cash - debts.value;
+  return total.toFixed(2);
+});
+
+// Nisab Threshold Value in EUR (85g * Current Gold Price)
+const goldNisabThreshold = computed(() => {
+  return (GOLD_NISAB_GRAMS * goldApiData.value.fixing_gram_eur).toFixed(2);
+});
+
+const silverNisabThreshold = computed(() => {
+  return (SILVER_NISAB_GRAMS * silverApiData.value.fixing_gram_eur).toFixed(2);
+});
+
+// Is Zakat Due? (Total Wealth > Nisab)
+const isZakatDue = computed(() => {
+  const total = parseFloat(totalNetWorth.value);
+  const goldNisab = parseFloat(goldNisabThreshold.value);
+  const silverNisab = parseFloat(silverNisabThreshold.value);
+  return total >= Math.min(goldNisab, silverNisab);
+});
+
+// Zakat Payable (2.5%)
+const zakatPayableEUR = computed(() => {
+  if (!isZakatDue.value) return 0;
+  return (totalNetWorth.value * 0.025).toFixed(2);
+});
+
+const formatCurrency = (val, currencyCode) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currencyCode,
+  }).format(val);
+};
+
+onMounted(() => {
+  getGoldPrice();
+});
 </script>
 <template>
   <div class="zakat-card">
@@ -83,8 +165,28 @@ const previewStep = ref(1);
           with the calculation and payment.
         </p>
         <div class="flex gap-1 wrap">
-          <button @click="previewStep++" class="tab-btn p-3 active-tab">
-            Preview: Zakat in few steps->
+          <button
+            @click="previewStep++"
+            class="tab-btn active-tab calculate-btn"
+          >
+            Preview: Zakat in few steps<span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="100%"
+                height="100%"
+                viewBox="0 0 22 16"
+                fill="none"
+                preserveAspectRatio="xMidYMid meet"
+                aria-hidden="true"
+                role="img"
+                style="width: 16px"
+              >
+                <path
+                  d="M1 7C0.447715 7 0 7.44772 0 8C0 8.55228 0.447715 9 1 9L1 7ZM21.7071 8.70711C22.0976 8.31658 22.0976 7.68342 21.7071 7.29289L15.3431 0.928932C14.9526 0.538408 14.3195 0.538408 13.9289 0.928932C13.5384 1.31946 13.5384 1.95262 13.9289 2.34315L19.5858 8L13.9289 13.6569C13.5384 14.0474 13.5384 14.6805 13.9289 15.0711C14.3195 15.4616 14.9526 15.4616 15.3431 15.0711L21.7071 8.70711ZM1 9L21 9V7L1 7L1 9Z"
+                  fill="white"
+                ></path>
+              </svg>
+            </span>
           </button>
         </div>
         <button @click="previewStep = 0" class="tab-btn p-3">
@@ -92,7 +194,6 @@ const previewStep = ref(1);
         </button>
       </div>
 
-          :class="['tab-btn p-3', { 'active-tab': value.selected }]"
       <div v-if="previewStep === 2" class="fade-in">
         <h2 class="step-title">Choose your assets</h2>
         <p class="step-desc">
@@ -198,13 +299,16 @@ const previewStep = ref(1);
           <div class="tab-container">
             <button
               @click="setUnit('euro')"
-              :class="['tab-btn px-2 py-1', { 'active-tab': unit === 'euro' }]"
+              :class="[
+                'tab-btn px-2 py-1',
+                { 'active-tab': metalUnit === 'euro' },
+              ]"
             >
               €
             </button>
             <button
               @click="setUnit('gram')"
-              :class="['tab-btn p-1', { 'active-tab': unit === 'gram' }]"
+              :class="['tab-btn p-1', { 'active-tab': metalUnit === 'gram' }]"
             >
               g
             </button>
@@ -213,15 +317,15 @@ const previewStep = ref(1);
         <div class="form-grid">
           <BaseZakatInput
             v-model="form.goldWeight"
-            label="Gold Weight"
-            :prefix="unit === 'euro' ? '€' : 'g'"
-            :placeholder="unit === 'euro' ? '0.00' : '0.0'"
+            :label="metalUnit === 'euro' ? 'Gold Value' : 'Gold Weight'"
+            :prefix="metalUnit === 'euro' ? '€' : 'g'"
+            :placeholder="metalUnit === 'euro' ? '0.00' : '0.0'"
           />
           <BaseZakatInput
             v-model="form.silverWeight"
-            label="Silver Weight"
-            :prefix="unit === 'euro' ? '€' : 'g'"
-            :placeholder="unit === 'euro' ? '0.00' : '0.0'"
+            :label="metalUnit === 'euro' ? 'Silver Value' : 'Silver Weight'"
+            :prefix="metalUnit === 'euro' ? '€' : 'g'"
+            :placeholder="metalUnit === 'euro' ? '0.00' : '0.0'"
           />
         </div>
       </div>
@@ -236,7 +340,7 @@ const previewStep = ref(1);
           </p>
         </header>
 
-        <div class="form-grid">
+        <div class="form-grid mt-8">
           <BaseZakatInput
             v-model="form.debts"
             label="Loan (Max repayment in 12 months)"
@@ -257,22 +361,23 @@ const previewStep = ref(1);
         <div class="result-box">
           <div class="row">
             <span>Total Assets:</span>
-            <span>€{{ totalAssets.toFixed(2) }}</span>
+            <span>€{{ totalNetWorth }}</span>
           </div>
           <div class="row debt">
-            <span>Minus Debts:</span> <span>-€{{ form.debts.toFixed(2) }}</span>
+            <span>Minus Debts:</span>
+            <span>-€{{ debts }}</span>
           </div>
-          <div class="row total">
+          <!-- <div class="row total">
             <span>Net Wealth:</span>
             <span>€{{ zakatableAmount.toFixed(2) }}</span>
-          </div>
+          </div> -->
         </div>
 
         <div class="nisab-status">
-          <p>Current Nisab: €{{ nisabLimit }}</p>
-          <div v-if="zakatableAmount >= nisabLimit" class="zakat-badge due">
+          <p>Current Nisab: €{{ silverNisabThreshold }}</p>
+          <div v-if="isZakatDue" class="zakat-badge due">
             The Zakat (2.5%) on your wealth is:<span style="font-size: 20px"
-              >€{{ zakatDue }}</span
+              >€{{ zakatPayableEUR }}</span
             >
           </div>
           <div v-else class="zakat-badge exempt">Below Nisab Threshold</div>
@@ -281,7 +386,7 @@ const previewStep = ref(1);
 
       <div class="nav-buttons">
         <button v-if="currentStep > 1" @click="prevStep" class="btn-secondary">
-          Back
+          Previous
         </button>
         <div v-else></div>
         <button v-if="currentStep < 5" @click="nextStep" class="btn-primary">
@@ -327,13 +432,13 @@ const previewStep = ref(1);
 
 /* Typography */
 .step-title {
-  font-size: 22px;
+  font-size: 32px;
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 8px;
 }
 .step-desc {
-  font-size: 14px;
+  font-size: 16px;
   color: #666;
   margin-bottom: 25px;
 }
@@ -481,13 +586,13 @@ const previewStep = ref(1);
   font-weight: 600;
   color: #64748b;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 16px;
   transition: all 0.2s ease;
 }
 
 /* Active State (Blue) */
 .tab-btn.active-tab {
-  background: #2563eb;
+  background: #006de3;
   color: #ffffff;
   box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
 }
@@ -497,8 +602,11 @@ const previewStep = ref(1);
 }
 
 /* Adjusting the grid for the tabs */
-.form-grid {
-  margin-top: 0;
+.calculate-btn {
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .p-3 {
   padding: 12px;
