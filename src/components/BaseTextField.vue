@@ -12,7 +12,7 @@
         type="number"
         class="custom-input"
         v-model="goldAmount"
-        placeholder="0.0"
+        :placeholder="placeholder"
       />
 
       <!-- <span class="suffix-text"
@@ -76,7 +76,7 @@ defineEmits(["update:modelValue"]);
 
 /* Focus state for the wrapper (optional UX improvement) */
 .input-wrapper:focus-within {
-  border-color: #059669; /* Green border on focus */
+  border-color: #006de3; /* Green border on focus */
   box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
 }
 
