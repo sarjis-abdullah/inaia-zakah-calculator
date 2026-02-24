@@ -512,7 +512,7 @@ onMounted(() => {
 }
 .overview-title {
   font-size: 20px;
-  font-weight: 600;
+  /* font-weight: 600; */
   color: #1a1a1a;
   margin-bottom: 12px;
   text-align: center;
