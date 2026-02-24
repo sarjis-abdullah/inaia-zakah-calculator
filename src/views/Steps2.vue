@@ -39,7 +39,7 @@ const options = ref([
     selected: false,
   },
   {
-    title: "Deductible debts",
+    title: "Deductible Debts",
     id: 3,
     selected: false,
   },
@@ -171,6 +171,15 @@ const nextPreviewStep = () => {
     previewStep.value = 0; // Start main steps after preview
   }
 };
+const restart = () => {
+  currentStep.value = 1;
+  form.money = null;
+  form.goldWeight = null;
+  form.silverWeight = null;
+  form.debts = null;
+  form.debts2 = null;
+  options.value.forEach((option) => (option.selected = false));
+};
 
 onMounted(() => {
   getGoldPrice();
@@ -248,7 +257,7 @@ onMounted(() => {
         </div>
 
         <div v-if="currentStep === 1" class="fade-in">
-          <h2 class="step-title">Choose below what applies to you.</h2>
+          <h2 class="step-title">Belows are what applies to you.</h2>
           <p class="step-desc">
             Below you will see the assets subject to zakat and the deductible
             debts.
@@ -261,104 +270,104 @@ onMounted(() => {
             <button
               v-for="value in options"
               @click="selectOption(value.id)"
-              :class="[
-                'tab-btn p-3',
-                {
-                  'active-tab': value.selected,
-                  'inactive-tab': !value.selected,
-                },
-              ]"
+              :class="['tab-btn p-3 active-tab']"
+              style="border: 1px solid white"
             >
               {{ value.title }}
             </button>
           </div>
         </div>
 
-        <div v-if="currentStep === 2" class="fade-in">
-          <h2 class="step-title">
-            Please enter the amount of money you currently have.
-          </h2>
-          <p class="step-desc">
-            Enter the total amount of your assets below, including checking,
-            savings accounts and savings under your mattress.
-          </p>
-          <BaseZakatInput
-            v-model="form.money"
-            label="Enter Amount"
-            prefix="€"
-            placeholder="0.00"
-          />
-        </div>
-
-        <div v-if="currentStep === 3" class="fade-in">
-          <header>
-            <h2 class="step-title">Gold and Silver value</h2>
-            <p>
-              Enter the current market value of your gold and silver holdings
-              here. If you don't know the value, you can also enter the weight
-              in grams (switch to grams to do this).
+        <section>
+          <div class="fade-in" v-if="currentStep == 3">
+            <h2 class="step-title">
+              Enter the amount of money you currently have.
+            </h2>
+            <p class="step-desc">
+              Enter the total amount of your assets below, including checking,
+              savings accounts and savings under your mattress.
             </p>
-          </header>
-          <div class="flex justify-end mt-4">
-            <div class="tab-container">
-              <button
-                @click="setUnit('euro')"
-                :class="[
-                  'tab-btn px-2 py-1',
-                  { 'active-tab': metalUnit === 'euro' },
-                ]"
-              >
-                €
-              </button>
-              <button
-                @click="setUnit('gram')"
-                :class="['tab-btn p-1', { 'active-tab': metalUnit === 'gram' }]"
-              >
-                g
-              </button>
+            <BaseZakatInput
+              v-model="form.money"
+              label="Enter Amount"
+              prefix="€"
+              placeholder="0.00"
+            />
+          </div>
+
+          <div class="fade-in" v-else-if="currentStep == 2">
+            <header>
+              <h2 class="step-title">Gold and Silver Value</h2>
+              <p>
+                Enter the current market value of your gold and silver holdings
+                here. If you don't know the value, you can also enter the weight
+                in grams (switch to grams to do this).
+              </p>
+            </header>
+            <div class="flex justify-end mt-4">
+              <div class="tab-container">
+                <button
+                  @click="setUnit('euro')"
+                  :class="[
+                    'tab-btn px-2 py-1',
+                    { 'active-tab': metalUnit === 'euro' },
+                  ]"
+                >
+                  €
+                </button>
+                <button
+                  @click="setUnit('gram')"
+                  :class="[
+                    'tab-btn p-1',
+                    { 'active-tab': metalUnit === 'gram' },
+                  ]"
+                >
+                  g
+                </button>
+              </div>
+            </div>
+            <div class="form-grid">
+              <BaseZakatInput
+                v-model="form.goldWeight"
+                :label="metalUnit === 'euro' ? 'Gold Value' : 'Gold Weight'"
+                :prefix="metalUnit === 'euro' ? '€' : 'g'"
+                :placeholder="metalUnit === 'euro' ? '0.00' : '0.0'"
+              />
+              <BaseZakatInput
+                v-model="form.silverWeight"
+                :label="metalUnit === 'euro' ? 'Silver Value' : 'Silver Weight'"
+                :prefix="metalUnit === 'euro' ? '€' : 'g'"
+                :placeholder="metalUnit === 'euro' ? '0.00' : '0.0'"
+              />
             </div>
           </div>
-          <div class="form-grid">
-            <BaseZakatInput
-              v-model="form.goldWeight"
-              :label="metalUnit === 'euro' ? 'Gold Value' : 'Gold Weight'"
-              :prefix="metalUnit === 'euro' ? '€' : 'g'"
-              :placeholder="metalUnit === 'euro' ? '0.00' : '0.0'"
-            />
-            <BaseZakatInput
-              v-model="form.silverWeight"
-              :label="metalUnit === 'euro' ? 'Silver Value' : 'Silver Weight'"
-              :prefix="metalUnit === 'euro' ? '€' : 'g'"
-              :placeholder="metalUnit === 'euro' ? '0.00' : '0.0'"
-            />
-          </div>
-        </div>
-        <div v-if="currentStep === 4" class="fade-in">
-          <header>
-            <h2 class="step-title">Your deductible debts</h2>
-            <p>
-              Certain debts can be deducted.<span v-if="false">
-                Before you do this, we recommend clicking on the (?).</span
-              >
-              We advise you to be as conservative as possible in this regard.
-            </p>
-          </header>
+          <div class="fade-in" v-else-if="currentStep == 4">
+            <header>
+              <h2 class="step-title">Your Deductible Debts</h2>
+              <p>
+                Certain debts can be deducted.<span v-if="false">
+                  Before you do this, we recommend clicking on the (?).</span
+                >
+                We advise you to be as conservative as possible in this regard.
+              </p>
+            </header>
 
-          <div class="form-grid mt-8">
-            <BaseZakatInput
-              v-model="form.debts"
-              label="Loan (Max repayment in 12 months)"
-              :prefix="'€'"
-              placeholder="0.00"
-            />
-            <BaseZakatInput
-              v-model="form.debts2"
-              label="Overdue bills"
-              :prefix="'€'"
-              placeholder="0.00"
-            />
+            <div class="form-grid mt-8">
+              <BaseZakatInput
+                v-model="form.debts"
+                label="Loan (Max repayment in 12 months)"
+                :prefix="'€'"
+                placeholder="0.00"
+              />
+              <BaseZakatInput
+                v-model="form.debts2"
+                label="Overdue bills"
+                :prefix="'€'"
+                placeholder="0.00"
+              />
+            </div>
           </div>
-        </div>
+        </section>
 
         <div v-if="currentStep === 5" class="fade-in">
           <h2 class="step-title">Your Zakat Calculation</h2>
@@ -409,11 +418,7 @@ onMounted(() => {
             {{ currentStep === 4 ? "Look at my calculation" : "Next" }}
             <ArrowIcon />
           </button>
-          <button
-            v-else
-            @click="currentStep = 1"
-            class="btn-primary calculate-btn"
-          >
+          <button v-else @click="restart" class="btn-primary calculate-btn">
             Restart
             <ArrowIcon />
           </button>
@@ -444,7 +449,7 @@ onMounted(() => {
             <span>-{{ formatCurrency(debts) }}</span>
           </div>
           <div
-            v-if="totalNetWorth && !isNaN(totalNetWorth) && totalNetWorth > 0"
+            v-if="totalNetWorth && !isNaN(totalNetWorth)"
             class="overview-row"
             style="border-top: 1px solid; padding-top: 1rem"
           >
