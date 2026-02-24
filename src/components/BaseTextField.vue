@@ -47,7 +47,7 @@ defineEmits(["update:modelValue"]);
 
 <style scoped>
 .zakat-input-group {
-  max-width: 500px; /* Adjust width as needed */
+  /* max-width: 500px;  */
   /* margin: 20px; */
   /* margin-left: auto;
   margin-right: auto; */

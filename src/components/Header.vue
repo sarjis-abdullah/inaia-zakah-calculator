@@ -80,6 +80,7 @@ const setLang = (val) => {
 }
 
 .nav-container {
+  padding-top: 1rem;
   max-width: 1000px;
   margin: 12px auto;
   width: 100%;
