@@ -158,8 +158,8 @@ const zakatPayableEUR = computed(() => {
   return (totalNetWorth.value * 0.025).toFixed(2);
 });
 
-const formatCurrency = (val, currencyCode) => {
-  return new Intl.NumberFormat("en-US", {
+const formatCurrency = (val, currencyCode = "EUR") => {
+  return new Intl.NumberFormat("de-DE", {
     style: "currency",
     currency: currencyCode,
   }).format(val);
@@ -365,24 +365,26 @@ onMounted(() => {
           <div class="result-box">
             <div class="row">
               <span>Total Assets:</span>
-              <span>{{ totalNetWorth }} €</span>
+              <span>{{ formatCurrency(totalNetWorth) }}</span>
             </div>
             <div class="row" v-if="debts">
               <span>Minus Debts:</span>
-              <span>-{{ debts }} €</span>
+              <span>-{{ formatCurrency(debts) }}</span>
             </div>
           </div>
 
           <div class="nisab-status">
             <p class="nisab-title">
               <span>Current Nisab:</span>
-              <span class="bold pl-2">{{ silverNisabThreshold }} €</span>
+              <span class="bold pl-2">{{
+                formatCurrency(silverNisabThreshold)
+              }}</span>
             </p>
             <div v-if="isZakatDue" class="zakat-badge due">
               The Zakat (2.5%) on your wealth is:<span
                 class="pl-2"
                 style="font-size: 20px"
-                >{{ zakatPayableEUR }} €</span
+                >{{ formatCurrency(zakatPayableEUR) }}</span
               >
             </div>
             <div v-else class="zakat-badge exempt">Below Nisab Threshold</div>
@@ -425,21 +427,21 @@ onMounted(() => {
         <div class="result-box">
           <div v-if="form.goldWeight" class="overview-row">
             <span>Gold Value</span>
-            <span>{{ goldEquivalentCurrencyValue }} €</span>
+            <span>{{ formatCurrency(goldEquivalentCurrencyValue) }}</span>
           </div>
 
           <div v-if="form.silverWeight" class="overview-row">
             <span>Silver Value</span>
-            <span>{{ silverEquivalentCurrencyValue }} €</span>
+            <span>{{ formatCurrency(silverEquivalentCurrencyValue) }}</span>
           </div>
 
           <div v-if="form.money" class="overview-row">
             <span>Money</span>
-            <span>{{ moneyAmount }} €</span>
+            <span>{{ formatCurrency(form.money) }}</span>
           </div>
           <div v-if="debts" class="overview-row">
             <span>Debts</span>
-            <span>-{{ debts }} €</span>
+            <span>-{{ formatCurrency(debts) }}</span>
           </div>
           <div
             v-if="totalNetWorth && !isNaN(totalNetWorth) && totalNetWorth > 0"
@@ -447,7 +449,7 @@ onMounted(() => {
             style="border-top: 1px solid; padding-top: 1rem"
           >
             <span>Total Assets:</span>
-            <span>{{ totalNetWorth }} €</span>
+            <span>{{ formatCurrency(totalNetWorth) }}</span>
           </div>
         </div>
       </div>
