@@ -21,7 +21,7 @@ const form = reactive({
 const nextStep = () => currentStep.value++;
 const prevStep = () => currentStep.value--;
 
-const metalUnit = ref("gram"); // Default selection
+const metalUnit = ref("euro"); // Default selection
 
 const setUnit = (val) => {
   metalUnit.value = val;
@@ -91,6 +91,9 @@ const goldEquivalentCurrencyValue = computed(() => {
   if (isNaN(amount) || amount <= 0) {
     return "0.00";
   }
+  if (metalUnit.value == "euro") {
+    return amount.toFixed(2);
+  }
   return (amount * goldApiData.value.fixing_gram_eur).toFixed(2);
 });
 
@@ -98,6 +101,9 @@ const silverEquivalentCurrencyValue = computed(() => {
   const amount = parseFloat(form.silverWeight);
   if (isNaN(amount) || amount <= 0) {
     return "0.00";
+  }
+  if (metalUnit.value == "euro") {
+    return amount.toFixed(2);
   }
   return (amount * silverApiData.value.fixing_gram_eur).toFixed(2);
 });
@@ -359,22 +365,24 @@ onMounted(() => {
           <div class="result-box">
             <div class="row">
               <span>Total Assets:</span>
-              <span>€{{ totalNetWorth }}</span>
+              <span>{{ totalNetWorth }} €</span>
             </div>
             <div class="row" v-if="debts">
               <span>Minus Debts:</span>
-              <span>-€{{ debts }}</span>
+              <span>-{{ debts }} €</span>
             </div>
           </div>
 
           <div class="nisab-status">
             <p class="nisab-title">
               <span>Current Nisab:</span>
-              <span class="bold pl-2">€{{ silverNisabThreshold }}</span>
+              <span class="bold pl-2">{{ silverNisabThreshold }} €</span>
             </p>
             <div v-if="isZakatDue" class="zakat-badge due">
-              The Zakat (2.5%) on your wealth is:<span style="font-size: 20px"
-                >€{{ zakatPayableEUR }}</span
+              The Zakat (2.5%) on your wealth is:<span
+                class="pl-2"
+                style="font-size: 20px"
+                >{{ zakatPayableEUR }} €</span
               >
             </div>
             <div v-else class="zakat-badge exempt">Below Nisab Threshold</div>
@@ -417,21 +425,21 @@ onMounted(() => {
         <div class="result-box">
           <div v-if="form.goldWeight" class="overview-row">
             <span>Gold Value</span>
-            <span>€{{ goldEquivalentCurrencyValue }}</span>
+            <span>{{ goldEquivalentCurrencyValue }} €</span>
           </div>
 
           <div v-if="form.silverWeight" class="overview-row">
             <span>Silver Value</span>
-            <span>€{{ silverEquivalentCurrencyValue }}</span>
+            <span>{{ silverEquivalentCurrencyValue }} €</span>
           </div>
 
           <div v-if="form.money" class="overview-row">
             <span>Money</span>
-            <span>€{{ moneyAmount }}</span>
+            <span>{{ moneyAmount }} €</span>
           </div>
           <div v-if="debts" class="overview-row">
             <span>Debts</span>
-            <span>-€{{ debts }}</span>
+            <span>-{{ debts }} €</span>
           </div>
           <div
             v-if="totalNetWorth && !isNaN(totalNetWorth) && totalNetWorth > 0"
@@ -439,16 +447,8 @@ onMounted(() => {
             style="border-top: 1px solid; padding-top: 1rem"
           >
             <span>Total Assets:</span>
-            <span>€{{ totalNetWorth }}</span>
+            <span>{{ totalNetWorth }} €</span>
           </div>
-          <!-- <div class="row">
-            <span>Total Assets:</span>
-            <span>€{{ totalNetWorth }}</span>
-          </div>
-          <div class="row debt">
-            <span>Minus Debts:</span>
-            <span>-€{{ debts }}</span>
-          </div> -->
         </div>
       </div>
     </section>
