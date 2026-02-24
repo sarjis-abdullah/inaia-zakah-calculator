@@ -239,7 +239,7 @@ onMounted(() => {
               class="tab-btn active-tab calculate-btn"
             >
               <span v-if="appPreviewState == 1"
-                >Preview: Zakat in few steps</span
+                >Calculate Zakat in few steps</span
               >
               <span v-else-if="appPreviewState == 2">Next Step</span>
               <span v-else-if="appPreviewState == 3">Next Step</span>
