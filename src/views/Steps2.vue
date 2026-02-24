@@ -13,6 +13,7 @@ const form = reactive({
   goldWeight: 0,
   silverWeight: 0,
   debts: 0,
+  debts2: 0,
 });
 
 // 2. Calculations
@@ -58,7 +59,7 @@ const options = ref([
     selected: false,
   },
   {
-    title: "Business Assets",
+    title: "Deductible debts",
     id: 3,
     selected: false,
   },
@@ -69,173 +70,231 @@ const selectOption = (id) => {
     selected: option.id === id ? !option.selected : option.selected,
   }));
 };
+const steps = [1, 2, 3, 4, 5];
+const previewStep = ref(1);
 </script>
 <template>
   <div class="zakat-card">
-    <div class="progress-container">
-      <div
-        v-for="step in 4"
-        :key="step"
-        :class="['step-dot', { active: currentStep >= step }]"
-      ></div>
-    </div>
-
-    <div v-if="currentStep === 1" class="fade-in">
-      <h2 class="step-title">Choose below what applies to you.</h2>
-      <p class="step-desc">
-        Below you will see the assets subject to zakat and the deductible debts.
-        <span v-if="false"
-          >Are you unsure about one or more options? Select them anyway to
-          receive more information in a later step.</span
-        >
-      </p>
-      <div class="flex gap-1 wrap">
-        <button
-          v-for="value in options"
-          @click="selectOption(value.id)"
-          :class="['tab-btn p-3', { 'active-tab': value.selected }]"
-        >
-          {{ value.title }}
+    <section v-if="previewStep > 0">
+      <div v-if="previewStep === 1" class="fade-in">
+        <h2 class="step-title">Calculate your Zakat!</h2>
+        <p class="step-desc">
+          Zakat is one of the most important pillars in Islam. We support you
+          with the calculation and payment.
+        </p>
+        <div class="flex gap-1 wrap">
+          <button @click="previewStep++" class="tab-btn p-3 active-tab">
+            Preview: Zakat in few steps->
+          </button>
+        </div>
+        <button @click="previewStep = 0" class="tab-btn p-3">
+          Skip preview!
         </button>
       </div>
-      <!-- <div class="checkbox-group">
-        <label class="custom-checkbox">
-          <input type="checkbox" checked /> <span>Gold and Silver</span>
-        </label>
-        <label class="custom-checkbox">
-          <input type="checkbox" checked /> <span>Money / Savings</span>
-        </label>
-      </div> -->
-    </div>
 
-    <div v-if="currentStep === 2" class="fade-in">
-      <h2 class="step-title">
-        Please enter the amount of money you currently have.
-      </h2>
-      <p class="step-desc">
-        Enter the total amount of your assets below, including checking, savings
-        accounts and savings under your mattress.
-      </p>
-      <BaseZakatInput
-        v-model="form.money"
-        label="Enter Amount"
-        prefix="€"
-        placeholder="0.00"
-      />
-      <!-- <div class="input-wrapper">
-        <span class="currency-symbol">€</span>
-        <input
-          v-model.number="form.money"
-          type="number"
-          class="main-input"
+          :class="['tab-btn p-3', { 'active-tab': value.selected }]"
+      <div v-if="previewStep === 2" class="fade-in">
+        <h2 class="step-title">Choose your assets</h2>
+        <p class="step-desc">
+          Zakat is paid on certain assets. Select your assets in the calculator
+          and enter their value.
+        </p>
+        <div class="flex gap-1 wrap">
+          <button @click="previewStep++" class="tab-btn p-3 active-tab">
+            Next
+          </button>
+        </div>
+        <button @click="previewStep = 0" class="tab-btn p-3 active-tab">
+          Skip preview!
+        </button>
+      </div>
+      <div v-if="previewStep === 3" class="fade-in">
+        <h2 class="step-title">Determine the purpose of your Zakat .</h2>
+        <p class="step-desc">
+          Your Zakat changes lives. Decide for yourself where your Zakat should
+          be used. Alternatively, you can leave the decision to Zakat Germany.
+          That's also possible!
+        </p>
+        <div class="flex gap-1 wrap">
+          <button @click="previewStep++" class="tab-btn p-3 active-tab">
+            Next
+          </button>
+        </div>
+        <button @click="previewStep = 0" class="tab-btn p-3 active-tab">
+          Skip preview!
+        </button>
+      </div>
+      <div v-if="previewStep === 4" class="fade-in">
+        <h2 class="step-title">Completion and payment of your Zakat</h2>
+        <p class="step-desc">
+          We provide you with a transparent overview of your calculation and
+          Zakat payment. This way, you can fulfill the third pillar of your
+          faith with a clear conscience.
+        </p>
+        <div class="flex gap-1 wrap">
+          <button @click="previewStep = 0" class="tab-btn p-3 active-tab">
+            Calculate your Zakat now!
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section v-else>
+      <div class="progress-container">
+        <div
+          v-for="step in steps"
+          :key="step"
+          :class="['step-dot', { active: currentStep >= step }]"
+        ></div>
+      </div>
+
+      <div v-if="currentStep === 1" class="fade-in">
+        <h2 class="step-title">Choose below what applies to you.</h2>
+        <p class="step-desc">
+          Below you will see the assets subject to zakat and the deductible
+          debts.
+          <span v-if="false"
+            >Are you unsure about one or more options? Select them anyway to
+            receive more information in a later step.</span
+          >
+        </p>
+        <div class="flex gap-1 wrap">
+          <button
+            v-for="value in options"
+            @click="selectOption(value.id)"
+            :class="['tab-btn p-3', { 'active-tab': value.selected }]"
+          >
+            {{ value.title }}
+          </button>
+        </div>
+      </div>
+
+      <div v-if="currentStep === 2" class="fade-in">
+        <h2 class="step-title">
+          Please enter the amount of money you currently have.
+        </h2>
+        <p class="step-desc">
+          Enter the total amount of your assets below, including checking,
+          savings accounts and savings under your mattress.
+        </p>
+        <BaseZakatInput
+          v-model="form.money"
+          label="Enter Amount"
+          prefix="€"
           placeholder="0.00"
         />
-      </div> -->
-    </div>
-
-    <div v-if="currentStep === 3" class="fade-in">
-      <header>
-        <h2 class="step-title">Gold and silver value</h2>
-        <p>
-          Enter the current market value of your gold and silver holdings here.
-          If you don't know the value, you can also enter the weight in grams
-          (switch to grams to do this).
-        </p>
-      </header>
-      <div class="flex justify-end">
-        <div class="tab-container">
-          <button
-            @click="setUnit('euro')"
-            :class="['tab-btn p-1', { 'active-tab': unit === 'euro' }]"
-          >
-            €
-          </button>
-          <button
-            @click="setUnit('gram')"
-            :class="['tab-btn p-1', { 'active-tab': unit === 'gram' }]"
-          >
-            g
-          </button>
-        </div>
       </div>
-      <div class="form-grid">
-        <BaseZakatInput
-          v-model="form.goldWeight"
-          label="Gold Weight"
-          :prefix="unit === 'euro' ? '€' : 'g'"
-          placeholder="Enter grams"
-        />
-        <BaseZakatInput
-          v-model="form.silverWeight"
-          label="Silver Weight"
-          :prefix="unit === 'euro' ? '€' : 'g'"
-          placeholder="Enter grams"
-        />
-        <!-- <div class="field">
-          <label>Gold (Grams)</label>
-          <input
-            v-model.number="form.goldWeight"
-            type="number"
-            placeholder="0"
+
+      <div v-if="currentStep === 3" class="fade-in">
+        <header>
+          <h2 class="step-title">Gold and silver value</h2>
+          <p>
+            Enter the current market value of your gold and silver holdings
+            here. If you don't know the value, you can also enter the weight in
+            grams (switch to grams to do this).
+          </p>
+        </header>
+        <div class="flex justify-end">
+          <div class="tab-container">
+            <button
+              @click="setUnit('euro')"
+              :class="['tab-btn px-2 py-1', { 'active-tab': unit === 'euro' }]"
+            >
+              €
+            </button>
+            <button
+              @click="setUnit('gram')"
+              :class="['tab-btn p-1', { 'active-tab': unit === 'gram' }]"
+            >
+              g
+            </button>
+          </div>
+        </div>
+        <div class="form-grid">
+          <BaseZakatInput
+            v-model="form.goldWeight"
+            label="Gold Weight"
+            :prefix="unit === 'euro' ? '€' : 'g'"
+            :placeholder="unit === 'euro' ? '0.00' : '0.0'"
           />
-        </div> -->
-        <!-- <div class="field">
-          <label>Silver (g)</label>
-          <input
-            v-model.number="form.silverWeight"
-            type="number"
-            placeholder="0"
+          <BaseZakatInput
+            v-model="form.silverWeight"
+            label="Silver Weight"
+            :prefix="unit === 'euro' ? '€' : 'g'"
+            :placeholder="unit === 'euro' ? '0.00' : '0.0'"
           />
-        </div> -->
-        <!-- <div class="field full">
-          <label>Deductible Debts (€)</label>
-          <input v-model.number="form.debts" type="number" placeholder="0.00" />
-        </div> -->
-      </div>
-    </div>
-
-    <div v-if="currentStep === 4" class="fade-in">
-      <h2 class="step-title">Your Zakat Calculation</h2>
-      <div class="result-box">
-        <div class="row">
-          <span>Total Assets:</span> <span>€{{ totalAssets.toFixed(2) }}</span>
-        </div>
-        <div class="row debt">
-          <span>Minus Debts:</span> <span>-€{{ form.debts.toFixed(2) }}</span>
-        </div>
-        <div class="row total">
-          <span>Net Wealth:</span>
-          <span>€{{ zakatableAmount.toFixed(2) }}</span>
         </div>
       </div>
+      <div v-if="currentStep === 4" class="fade-in">
+        <header>
+          <h2 class="step-title">Your deductible debts</h2>
+          <p>
+            Certain debts can be deducted.<span v-if="false">
+              Before you do this, we recommend clicking on the (?).</span
+            >
+            We advise you to be as conservative as possible in this regard.
+          </p>
+        </header>
 
-      <div class="nisab-status">
-        <p>Current Nisab: €{{ nisabLimit }}</p>
-        <div v-if="zakatableAmount >= nisabLimit" class="zakat-badge due">
-          The Zakat (2.5%) on your wealth is:<span style="font-size: 20px"
-            >€{{ zakatDue }}</span
-          >
+        <div class="form-grid">
+          <BaseZakatInput
+            v-model="form.debts"
+            label="Loan (Max repayment in 12 months)"
+            :prefix="'€'"
+            placeholder="0.00"
+          />
+          <BaseZakatInput
+            v-model="form.debts2"
+            label="Overdue bills"
+            :prefix="'€'"
+            placeholder="0.00"
+          />
         </div>
-        <div v-else class="zakat-badge exempt">Below Nisab Threshold</div>
       </div>
-    </div>
 
-    <div class="nav-buttons">
-      <button v-if="currentStep > 1" @click="prevStep" class="btn-secondary">
-        Back
-      </button>
-      <div v-else></div>
-      <button v-if="currentStep < 4" @click="nextStep" class="btn-primary">
-        Next
-      </button>
-      <button v-else @click="currentStep = 1" class="btn-primary">
-        Restart
-      </button>
-    </div>
+      <div v-if="currentStep === 5" class="fade-in">
+        <h2 class="step-title">Your Zakat Calculation</h2>
+        <div class="result-box">
+          <div class="row">
+            <span>Total Assets:</span>
+            <span>€{{ totalAssets.toFixed(2) }}</span>
+          </div>
+          <div class="row debt">
+            <span>Minus Debts:</span> <span>-€{{ form.debts.toFixed(2) }}</span>
+          </div>
+          <div class="row total">
+            <span>Net Wealth:</span>
+            <span>€{{ zakatableAmount.toFixed(2) }}</span>
+          </div>
+        </div>
+
+        <div class="nisab-status">
+          <p>Current Nisab: €{{ nisabLimit }}</p>
+          <div v-if="zakatableAmount >= nisabLimit" class="zakat-badge due">
+            The Zakat (2.5%) on your wealth is:<span style="font-size: 20px"
+              >€{{ zakatDue }}</span
+            >
+          </div>
+          <div v-else class="zakat-badge exempt">Below Nisab Threshold</div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button v-if="currentStep > 1" @click="prevStep" class="btn-secondary">
+          Back
+        </button>
+        <div v-else></div>
+        <button v-if="currentStep < 5" @click="nextStep" class="btn-primary">
+          {{ currentStep === 4 ? "Look at my calculation" : "Next" }}
+        </button>
+        <button v-else @click="currentStep = 1" class="btn-primary">
+          Restart
+        </button>
+      </div>
+    </section>
   </div>
 </template>
 <style scoped>
-/* Container & Layout */
 .zakat-card {
   max-width: 400px;
   margin: 40px auto;
@@ -439,7 +498,7 @@ const selectOption = (id) => {
 
 /* Adjusting the grid for the tabs */
 .form-grid {
-  margin-top: 10px;
+  margin-top: 0;
 }
 .p-3 {
   padding: 12px;
