@@ -15,7 +15,7 @@
       </div>
 
       <div class="nav-right">
-        <button class="nav-action">
+        <button class="nav-action" @click="countStore.setPreviewState(0)">
           Calculate Zakat
           <span>
             <svg
@@ -52,6 +52,11 @@
 
 <script setup>
 import { ref } from "vue";
+import { storeToRefs } from "pinia";
+import { useCountStore } from "@/stores/count";
+
+const countStore = useCountStore();
+const { appPreviewState } = storeToRefs(countStore);
 const lang = ref("en"); // default language
 
 const setLang = (val) => {

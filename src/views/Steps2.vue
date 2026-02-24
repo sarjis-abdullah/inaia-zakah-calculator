@@ -2,6 +2,11 @@
 import { ref, computed, reactive, onMounted } from "vue";
 import BaseZakatInput from "@/components/BaseTextField.vue";
 import ArrowIcon from "@/components/ArrowIcon.vue";
+import { storeToRefs } from "pinia";
+import { useCountStore } from "@/stores/count";
+
+const countStore = useCountStore();
+const { appPreviewState } = storeToRefs(countStore);
 
 // 1. App State
 const currentStep = ref(1);
@@ -165,11 +170,7 @@ const formatCurrency = (val, currencyCode = "EUR") => {
   }).format(val);
 };
 const nextPreviewStep = () => {
-  if (previewStep.value < 4) {
-    previewStep.value++;
-  } else {
-    previewStep.value = 0; // Start main steps after preview
-  }
+  countStore.nextPreviewState();
 };
 const restart = () => {
   currentStep.value = 1;
@@ -188,8 +189,8 @@ onMounted(() => {
 <template>
   <section class="container">
     <div class="zakat-card">
-      <section v-if="previewStep > 0">
-        <div v-if="previewStep === 1" class="fade-in">
+      <section v-if="appPreviewState > 0">
+        <div v-if="appPreviewState === 1" class="fade-in">
           <h2 class="step-title">Calculate your Zakat!</h2>
           <p class="step-desc">
             Zakat is one of the most important pillars in Islam. We support you
@@ -197,14 +198,14 @@ onMounted(() => {
           </p>
         </div>
 
-        <div v-if="previewStep === 2" class="fade-in">
+        <div v-if="appPreviewState === 2" class="fade-in">
           <h2 class="step-title">Choose your assets</h2>
           <p class="step-desc">
             Zakat is paid on certain assets. Select your assets in the
             calculator and enter their value.
           </p>
         </div>
-        <div v-if="previewStep === 3" class="fade-in">
+        <div v-if="appPreviewState === 3" class="fade-in">
           <h2 class="step-title">Determine the purpose of your Zakat .</h2>
           <p class="step-desc">
             Your Zakat changes lives. Decide for yourself where your Zakat
@@ -212,7 +213,7 @@ onMounted(() => {
             Germany. That's also possible!
           </p>
         </div>
-        <div v-if="previewStep === 4" class="fade-in">
+        <div v-if="appPreviewState === 4" class="fade-in">
           <h2 class="step-title">Completion and payment of your Zakat</h2>
           <p class="step-desc">
             We provide you with a transparent overview of your calculation and
@@ -224,11 +225,11 @@ onMounted(() => {
         <div>
           <div
             class="flex gap-1 wrap"
-            :class="previewStep < 4 ? 'justify-between' : 'justify-end'"
+            :class="appPreviewState < 4 ? 'justify-between' : 'justify-end'"
           >
             <button
-              v-if="previewStep < 4"
-              @click="previewStep = 0"
+              v-if="appPreviewState < 4"
+              @click="countStore.setPreviewState(0)"
               class="tab-btn"
             >
               Skip preview!
@@ -237,10 +238,14 @@ onMounted(() => {
               @click="nextPreviewStep"
               class="tab-btn active-tab calculate-btn"
             >
-              <span v-if="previewStep == 1">Preview: Zakat in few steps</span>
-              <span v-else-if="previewStep == 2">Next Step</span>
-              <span v-else-if="previewStep == 3">Next Step</span>
-              <span v-else-if="previewStep == 4">Calculate your Zakat now</span>
+              <span v-if="appPreviewState == 1"
+                >Preview: Zakat in few steps</span
+              >
+              <span v-else-if="appPreviewState == 2">Next Step</span>
+              <span v-else-if="appPreviewState == 3">Next Step</span>
+              <span v-else-if="appPreviewState == 4"
+                >Calculate your Zakat now</span
+              >
               <ArrowIcon />
             </button>
           </div>
