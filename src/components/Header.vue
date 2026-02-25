@@ -11,11 +11,20 @@
       </div>
 
       <div class="nav-middle">
-        <span class="bold"> Zakat Calculator </span>
+        <span class=""> Zakat Calculator </span>
       </div>
 
       <div class="nav-right">
-        <button class="nav-action" @click="countStore.setPreviewState(0)">
+        <select name="language" class="custom-input mr-2">
+          <option value="de">German</option>
+          <option value="fr">French</option>
+          <option value="en">English</option>
+        </select>
+        <button
+          v-if="appPreviewState != 0"
+          class="nav-action"
+          @click="countStore.setPreviewState(0)"
+        >
           Calculate Zakat
           <span>
             <svg
@@ -36,6 +45,7 @@
             </svg>
           </span>
         </button>
+
         <div class="lang-selector" v-if="false">
           <button @click="setLang('en')" :class="{ active: lang === 'en' }">
             <img src="https://flagcdn.com/w20/gb.png" alt="English" /> EN
@@ -193,5 +203,35 @@ const setLang = (val) => {
 }
 .bold {
   font-weight: bold;
+}
+.custom-input {
+  /* Dimensions & Shape */
+  height: 100%;
+  border-radius: 0.375rem; /* rounded-md */
+
+  /* Colors & Borders */
+  border-color: #006de3;
+  /* background-color: transparent; */
+  color: #6b7280; /* text-gray-500 */
+
+  /* Spacing */
+  padding-top: 0;
+  padding-bottom: 0;
+
+  /* Typography */
+  font-size: 0.875rem; /* sm:text-sm */
+  line-height: 1.25rem;
+
+  color: #006de3;
+  padding: 0.5rem 8px;
+  border-radius: 16px;
+}
+
+/* Interaction States */
+.custom-input:focus {
+  border-width: 0; /* focus:border-0 */
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 0 transparent; /* focus:ring-0 */
 }
 </style>
