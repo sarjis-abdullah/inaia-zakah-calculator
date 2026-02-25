@@ -44,5 +44,8 @@
   "total_amount_owed_to_others": "Total amount owed to others (Max repayment in 12 months)",
   "outstanding_liabilities": "Outstanding liabilities (e.g., loans, credit card balances)",
   "gold_weight": "Gold Weight",
-  "silver_weight": "Silver Weight"
+  "silver_weight": "Silver Weight",
+  "Gold and Silver": "Gold and Silver",
+  "Money / Savings": "Money / Savings",
+  "Deductible Debts": "Deductible Debts"
 }

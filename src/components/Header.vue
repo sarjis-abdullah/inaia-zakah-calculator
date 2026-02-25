@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { on, ref, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useCountStore } from "@/stores/count";
@@ -72,24 +72,22 @@ const route = useRoute();
 const currentLocale = ref(locale.value);
 const changeLanguage = (event) => {
   const newLocale = event.target.value;
-  // 1. Update the i18n instance state
-  // locale.value = newLocale;
-  console.log(newLocale, { ...route.params, locale: newLocale });
-
-  // 2. Update the URL by pushing to the current route name
-  // but with the updated 'locale' parameter
   router.push({
     ...route,
     name: route.name,
     params: { ...route.params, locale: newLocale },
   });
 };
-const lang = ref("en"); // default language
 
-const setLang = (val) => {
-  lang.value = val;
-  // You can later add logic here to change the text of the app
-};
+watch(
+  () => locale.value,
+  (o, n) => {
+    if (o !== n) {
+      currentLocale.value = locale.value;
+    }
+  },
+  { immediate: true, deep: true },
+);
 </script>
 
 <style scoped>

@@ -36,17 +36,17 @@ const setUnit = (val) => {
 
 const options = ref([
   {
-    title: "Gold and Silver",
+    title: t("Gold and Silver"),
     id: 1,
     selected: false,
   },
   {
-    title: "Money / Savings",
+    title: t("Money / Savings"),
     id: 2,
     selected: false,
   },
   {
-    title: "Deductible Debts",
+    title: t("Deductible Debts"),
     id: 3,
     selected: false,
   },
