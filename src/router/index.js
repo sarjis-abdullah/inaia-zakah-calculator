@@ -17,7 +17,7 @@ const router = createRouter({
         {
           path: "",
           name: "home",
-          component: Steps2,
+          component: StepsCalculator,
         },
         // {
         //   path: "/",

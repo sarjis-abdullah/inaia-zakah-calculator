@@ -130,8 +130,7 @@ const SILVER_NISAB_GRAMS = 612.36;
 
 // Total Net Worth in EUR
 const debts = computed(() => {
-  let totalDebts = parseFloat(form.debts) || 0;
-  totalDebts += parseFloat(form.debts2) || 0;
+  const totalDebts = parseFloat(form.debts) || 0;
   return totalDebts ? totalDebts.toFixed(2) : 0;
 });
 const totalNetWorth = computed(() => {
@@ -180,7 +179,6 @@ const restart = () => {
   form.goldWeight = null;
   form.silverWeight = null;
   form.debts = null;
-  form.debts2 = null;
   options.value.forEach((option) => (option.selected = false));
 };
 
@@ -193,34 +191,30 @@ onMounted(() => {
     <div class="zakat-card">
       <section v-if="appPreviewState > 0">
         <div v-if="appPreviewState === 1" class="fade-in">
-          <h2 class="step-title">Calculate your Zakat!</h2>
+          <h2 class="step-title">{{ $t("calculate_your_zakat") }}</h2>
           <p class="step-desc">
-            Zakat is one of the most important pillars in Islam. We support you
-            with the calculation and payment.
+            {{ $t("zakat_is_one_of_the_most_important") }}
           </p>
         </div>
 
         <div v-if="appPreviewState === 2" class="fade-in">
-          <h2 class="step-title">Choose your assets</h2>
+          <h2 class="step-title">{{ $t("choose_your_assets") }}</h2>
           <p class="step-desc">
-            Zakat is paid on certain assets. Select your assets in the
-            calculator and enter their value.
+            {{ $t("zakat_is_paid_on_certain_assets") }}
           </p>
         </div>
         <div v-if="appPreviewState === 3" class="fade-in">
-          <h2 class="step-title">Determine the purpose of your Zakat .</h2>
+          <h2 class="step-title">
+            {{ $t("determine_the_purpose_of_your_zakat") }}
+          </h2>
           <p class="step-desc">
-            Your Zakat changes lives. Decide for yourself where your Zakat
-            should be used. Alternatively, you can leave the decision to Zakat
-            Germany. That's also possible!
+            {{ $t("your_zakat_changes_lives") }}
           </p>
         </div>
         <div v-if="appPreviewState === 4" class="fade-in">
-          <h2 class="step-title">Completion and payment of your Zakat</h2>
+          <h2 class="step-title">{{ $t("completion_and_payment") }}</h2>
           <p class="step-desc">
-            We provide you with a transparent overview of your calculation and
-            Zakat payment. This way, you can fulfill the third pillar of your
-            faith with a clear conscience.
+            {{ $t("we_provide_you_with_transparent") }}
           </p>
         </div>
 
@@ -234,20 +228,24 @@ onMounted(() => {
               @click="countStore.setPreviewState(0)"
               class="tab-btn"
             >
-              Skip preview!
+              {{ $t("skip_preview") }}!
             </button>
             <button
               @click="nextPreviewStep"
               class="tab-btn active-tab calculate-btn"
             >
-              <span v-if="appPreviewState == 1"
-                >Calculate Zakat in few steps</span
-              >
-              <span v-else-if="appPreviewState == 2">Next Step</span>
-              <span v-else-if="appPreviewState == 3">Next Step</span>
-              <span v-else-if="appPreviewState == 4"
-                >Calculate your Zakat now</span
-              >
+              <span v-if="appPreviewState == 1">{{
+                $t("calculate_zakat_in_few_steps")
+              }}</span>
+              <span v-else-if="appPreviewState == 2">{{
+                $t("next_preview")
+              }}</span>
+              <span v-else-if="appPreviewState == 3">{{
+                $t("next_preview")
+              }}</span>
+              <span v-else-if="appPreviewState == 4">{{
+                $t("calculate_your_zakat_now")
+              }}</span>
               <ArrowIcon />
             </button>
           </div>
@@ -264,13 +262,11 @@ onMounted(() => {
         </div>
 
         <div v-if="currentStep === 1" class="fade-in">
-          <h2 class="step-title">Belows are what applies to you.</h2>
+          <h2 class="step-title">{{ $t("below_are_what_applies_to_you") }}</h2>
           <p class="step-desc">
-            Below you will see the assets subject to zakat and the deductible
-            debts.
+            {{ $t("below_you_will_see_assets_subject_to_zakat") }}
             <span v-if="false"
-              >Are you unsure about one or more options? Select them anyway to
-              receive more information in a later step.</span
+              >{{ $t("are_you_unsure_about_one_or_more_options") }}.</span
             >
           </p>
           <div class="flex gap-1 wrap">
@@ -288,15 +284,14 @@ onMounted(() => {
         <section>
           <div class="fade-in" v-if="currentStep == 3">
             <h2 class="step-title">
-              Enter the amount of money you currently have.
+              {{ $t("enter_the_amount_of_money_you_currently_have") }}
             </h2>
             <p class="step-desc">
-              Enter the total amount of your assets below, including checking,
-              savings accounts and savings under your mattress.
+              {{ $t("enter_the_total_amount_of_your_assets") }}.
             </p>
             <BaseZakatInput
               v-model="form.money"
-              label="Enter Amount"
+              :label="$t('enter_amount')"
               prefix="€"
               placeholder="0.00"
             />
@@ -304,11 +299,18 @@ onMounted(() => {
 
           <div class="fade-in" v-else-if="currentStep == 2">
             <header>
-              <h2 class="step-title">Gold and Silver Value</h2>
+              <h2 class="step-title">{{ $t("enter_gold_silver_value") }}</h2>
               <p>
-                Enter the current market value of your gold and silver holdings
-                here. If you don't know the value, you can also enter the weight
-                in grams (switch to grams to do this).
+                {{
+                  $t(
+                    "enter_the_current_market_value_of_your_gold_and_silver_holdings_here",
+                  )
+                }}
+                {{
+                  $t(
+                    "if_you_dont_know_the_value_you_can_also_enter_the_weight_in_grams_switch_to_grams_to_do_this",
+                  )
+                }}
               </p>
             </header>
             <div class="flex justify-end mt-4">
@@ -336,13 +338,19 @@ onMounted(() => {
             <div class="form-grid">
               <BaseZakatInput
                 v-model="form.goldWeight"
-                :label="metalUnit === 'euro' ? 'Gold Value' : 'Gold Weight'"
+                :label="
+                  metalUnit === 'euro' ? $t('gold_value') : $t('gold_weight')
+                "
                 :prefix="metalUnit === 'euro' ? '€' : 'g'"
                 :placeholder="metalUnit === 'euro' ? '0.00' : '0.0'"
               />
               <BaseZakatInput
                 v-model="form.silverWeight"
-                :label="metalUnit === 'euro' ? 'Silver Value' : 'Silver Weight'"
+                :label="
+                  metalUnit === 'euro'
+                    ? $t('silver_value')
+                    : $t('silver_weight')
+                "
                 :prefix="metalUnit === 'euro' ? '€' : 'g'"
                 :placeholder="metalUnit === 'euro' ? '0.00' : '0.0'"
               />
@@ -350,25 +358,16 @@ onMounted(() => {
           </div>
           <div class="fade-in" v-else-if="currentStep == 4">
             <header>
-              <h2 class="step-title">Your Deductible Debts</h2>
-              <p>
-                Certain debts can be deducted.<span v-if="false">
-                  Before you do this, we recommend clicking on the (?).</span
-                >
-                We advise you to be as conservative as possible in this regard.
-              </p>
+              <h2 class="step-title">
+                {{ $t("your_deductible_debts") }}
+              </h2>
+              <p>{{ $t("certain_debts_can_be_deducted") }}.</p>
             </header>
 
             <div class="form-grid mt-8">
               <BaseZakatInput
                 v-model="form.debts"
-                label="Loan (Max repayment in 12 months)"
-                :prefix="'€'"
-                placeholder="0.00"
-              />
-              <BaseZakatInput
-                v-model="form.debts2"
-                label="Overdue bills"
+                :label="$t('total_amount_owed_to_others')"
                 :prefix="'€'"
                 placeholder="0.00"
               />
@@ -377,33 +376,35 @@ onMounted(() => {
         </section>
 
         <div v-if="currentStep === 5" class="fade-in">
-          <h2 class="step-title">Your Zakat Calculation</h2>
+          <h2 class="step-title">{{ $t("your_zakat_calculation") }}</h2>
           <div class="result-box">
             <div class="row">
-              <span>Total Assets:</span>
+              <span>{{ $t("total_assets") }}:</span>
               <span>{{ formatCurrency(totalNetWorth) }}</span>
             </div>
             <div class="row" v-if="debts">
-              <span>Minus Debts:</span>
+              <span>{{ $t("minus_debts") }}:</span>
               <span>-{{ formatCurrency(debts) }}</span>
             </div>
           </div>
 
           <div class="nisab-status">
             <p class="nisab-title">
-              <span>Current Nisab:</span>
+              <span>{{ $t("current_nisab") }}:</span>
               <span class="bold pl-2">{{
                 formatCurrency(silverNisabThreshold)
               }}</span>
             </p>
             <div v-if="isZakatDue" class="zakat-badge due">
-              The Zakat (2.5%) on your wealth is:<span
+              {{ $t("the_zakat_percentage_on_your_wealth_is") }}:<span
                 class="pl-2"
                 style="font-size: 20px"
                 >{{ formatCurrency(zakatPayableEUR) }}</span
               >
             </div>
-            <div v-else class="zakat-badge exempt">Below Nisab Threshold</div>
+            <div v-else class="zakat-badge exempt">
+              {{ $t("below_nisab_threshold") }}
+            </div>
           </div>
         </div>
 
@@ -414,7 +415,7 @@ onMounted(() => {
             class="btn-primary calculate-btn"
           >
             <ArrowIcon :right="true" />
-            Previous
+            {{ $t("previous") }}
           </button>
           <div v-else></div>
           <button
@@ -422,11 +423,11 @@ onMounted(() => {
             @click="nextStep"
             class="btn-primary flex gap-2 calculate-btn"
           >
-            {{ currentStep === 4 ? "Look at my calculation" : "Next" }}
+            {{ currentStep === 4 ? $t("look_at_my_calculation") : $t("next") }}
             <ArrowIcon />
           </button>
           <button v-else @click="restart" class="btn-primary calculate-btn">
-            Restart
+            {{ $t("reset") }}
             <ArrowIcon />
           </button>
         </div>
@@ -434,25 +435,25 @@ onMounted(() => {
     </div>
     <section class="zakat-card" v-if="currentStep > 1">
       <div class="fade-in">
-        <h2 class="overview-title">Overview of calculation</h2>
+        <h2 class="overview-title">{{ $t("overview_of_calculation") }}</h2>
 
         <div class="result-box">
           <div v-if="form.goldWeight" class="overview-row">
-            <span>Gold Value</span>
+            <span>{{ $t("gold_value") }}</span>
             <span>{{ formatCurrency(goldEquivalentCurrencyValue) }}</span>
           </div>
 
           <div v-if="form.silverWeight" class="overview-row">
-            <span>Silver Value</span>
+            <span>{{ $t("silver_value") }}</span>
             <span>{{ formatCurrency(silverEquivalentCurrencyValue) }}</span>
           </div>
 
           <div v-if="form.money" class="overview-row">
-            <span>Money</span>
+            <span>{{ $t("money") }}</span>
             <span>{{ formatCurrency(form.money) }}</span>
           </div>
           <div v-if="debts" class="overview-row">
-            <span>Debts</span>
+            <span>{{ $t("debts") }}</span>
             <span>-{{ formatCurrency(debts) }}</span>
           </div>
           <div
@@ -460,7 +461,7 @@ onMounted(() => {
             class="overview-row"
             style="border-top: 1px solid; padding-top: 1rem"
           >
-            <span>Total Assets:</span>
+            <span>{{ $t("total_assets") }}:</span>
             <span>{{ formatCurrency(totalNetWorth) }}</span>
           </div>
         </div>

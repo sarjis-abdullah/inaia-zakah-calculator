@@ -30,7 +30,7 @@
           class="nav-action"
           @click="countStore.setPreviewState(0)"
         >
-          Calculate Zakat
+          {{ $t("calculate_zakat") }}
           <span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
