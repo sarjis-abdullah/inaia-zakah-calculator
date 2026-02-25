@@ -98,3 +98,6 @@ a,
 .mr-2 {
   margin-right: 0.5rem;
 }
+.text-xs {
+  font-size: 12px;
+}

@@ -364,13 +364,14 @@ onMounted(() => {
               <p>{{ $t("certain_debts_can_be_deducted") }}.</p>
             </header>
 
-            <div class="form-grid mt-8">
+            <div class="mt-8">
               <BaseZakatInput
                 v-model="form.debts"
                 :label="$t('total_amount_owed_to_others')"
                 :prefix="'€'"
                 placeholder="0.00"
               />
+              <p class="text-xs">{{ $t("outstanding_liabilities") }}</p>
             </div>
           </div>
         </section>
@@ -390,11 +391,19 @@ onMounted(() => {
 
           <div class="nisab-status">
             <p class="nisab-title">
-              <span>{{ $t("current_nisab") }}:</span>
-              <span class="bold pl-2">{{
-                formatCurrency(silverNisabThreshold)
-              }}</span>
+              <span class="bold">{{ $t("current_nisab") }}</span>
             </p>
+            <div class="nisab-title result-box">
+              <span style="border-right: 1px solid; padding: 1rem" class="pl-2"
+                >Gold: <span class="bold">{{ GOLD_NISAB_GRAMS }}</span
+                >g/ {{ formatCurrency(goldNisabThreshold) }}</span
+              >
+
+              <span class="pl-2"
+                >Silver: <span class="bold">{{ SILVER_NISAB_GRAMS }}</span
+                >g/ {{ formatCurrency(silverNisabThreshold) }}</span
+              >
+            </div>
             <div v-if="isZakatDue" class="zakat-badge due">
               {{ $t("the_zakat_percentage_on_your_wealth_is") }}:<span
                 class="pl-2"
