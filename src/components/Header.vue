@@ -15,10 +15,15 @@
       </div>
 
       <div class="nav-right">
-        <select name="language" class="custom-input mr-2">
+        <select
+          name="language"
+          class="custom-input mr-2"
+          @change="changeLanguage"
+          v-model="currentLocale"
+        >
+          <option value="en">English</option>
           <option value="de">German</option>
           <option value="fr">French</option>
-          <option value="en">English</option>
         </select>
         <button
           v-if="appPreviewState != 0"
@@ -45,16 +50,6 @@
             </svg>
           </span>
         </button>
-
-        <div class="lang-selector" v-if="false">
-          <button @click="setLang('en')" :class="{ active: lang === 'en' }">
-            <img src="https://flagcdn.com/w20/gb.png" alt="English" /> EN
-          </button>
-          <span class="divider">|</span>
-          <button @click="setLang('de')" :class="{ active: lang === 'de' }">
-            <img src="https://flagcdn.com/w20/de.png" alt="Deutsch" /> DE
-          </button>
-        </div>
       </div>
     </div>
   </nav>
@@ -62,11 +57,33 @@
 
 <script setup>
 import { ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useCountStore } from "@/stores/count";
+import { useI18n } from "vue-i18n";
+const { t, locale } = useI18n();
 
 const countStore = useCountStore();
 const { appPreviewState } = storeToRefs(countStore);
+
+const router = useRouter();
+const route = useRoute();
+
+const currentLocale = ref(locale.value);
+const changeLanguage = (event) => {
+  const newLocale = event.target.value;
+  // 1. Update the i18n instance state
+  // locale.value = newLocale;
+  console.log(newLocale, { ...route.params, locale: newLocale });
+
+  // 2. Update the URL by pushing to the current route name
+  // but with the updated 'locale' parameter
+  router.push({
+    ...route,
+    name: route.name,
+    params: { ...route.params, locale: newLocale },
+  });
+};
 const lang = ref("en"); // default language
 
 const setLang = (val) => {
@@ -230,7 +247,7 @@ const setLang = (val) => {
 /* Interaction States */
 .custom-input:focus {
   border-width: 0; /* focus:border-0 */
-  outline: 2px solid transparent;
+  outline: 1px solid #006de3;
   outline-offset: 2px;
   box-shadow: 0 0 0 0 transparent; /* focus:ring-0 */
 }

@@ -4,6 +4,8 @@ import BaseZakatInput from "@/components/BaseTextField.vue";
 import ArrowIcon from "@/components/ArrowIcon.vue";
 import { storeToRefs } from "pinia";
 import { useCountStore } from "@/stores/count";
+import { useI18n } from "vue-i18n";
+const { t, locale } = useI18n();
 
 const countStore = useCountStore();
 const { appPreviewState } = storeToRefs(countStore);
