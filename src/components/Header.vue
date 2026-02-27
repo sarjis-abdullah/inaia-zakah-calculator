@@ -3,7 +3,7 @@
     <div class="nav-container">
       <div class="nav-left">
         <div class="">
-          <a class="logo" href="/de/"
+          <a class="logo" href="https://www.inaia.finance/en/"
             ><img src="/logo.png" alt="INAIA" class="logo"
           /></a>
         </div>
