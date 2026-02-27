@@ -11,7 +11,7 @@ const countStore = useCountStore();
 const { appPreviewState } = storeToRefs(countStore);
 
 // 1. App State
-const currentStep = ref(1);
+// const currentStep = ref(1);
 const nisabLimit = 11458.82; // Example static value
 const goldPricePerGram = ref(0); // Fetch from API in a real app
 const silverPricePerGram = 0.85;
@@ -26,7 +26,7 @@ const form = reactive({
 
 // 3. Navigation
 const nextStep = () => currentStep.value++;
-const prevStep = () => currentStep.value--;
+// const prevStep = () => currentStep.value--;
 
 const metalUnit = ref("euro"); // Default selection
 
@@ -35,37 +35,46 @@ const setUnit = (val) => {
 };
 
 const options = ref([
-  {
-    title: t("Gold and Silver"),
-    id: 1,
-    selected: false,
-  },
-  {
-    title: t("Money / Savings"),
-    id: 2,
-    selected: false,
-  },
-  {
-    title: t("Deductible Debts"),
-    id: 3,
-    selected: false,
-  },
-  {
-    title: t("Shares and Investments"),
-    id: 4,
-    selected: false,
-  },
-  {
-    title: t("Crypto"),
-    id: 5,
-    selected: false,
-  },
-  {
-    title: t("Stocks"),
-    id: 6,
-    selected: false,
-  },
+  { title: "Gold and Silver", id: 1, selected: false, amount: 0, purity: 24 },
+  { title: "Money / Savings", id: 2, selected: false, balance: 0, bank: "" },
+  // { title: "Shares", id: 4, selected: false, shareCount: 0 },
+  { title: "Crypto", id: 5, selected: false, walletAddress: "", coins: 0 },
+  { title: "Stocks", id: 6, selected: false, ticker: "", value: 0 },
+  // { title: "Calc", id: 7, selected: false, ticker: "", value: 0 },
+  { title: "Deductible Debts", id: 3, selected: false, debtAmount: 0 },
 ]);
+
+// 2. Navigation State
+const currentIndex = ref(0);
+const selectedOptions = computed(() =>
+  options.value.filter((option) => option.selected),
+);
+
+// Helper to get the current object
+const currentStep = computed(() => selectedOptions.value[currentIndex.value]);
+const showZakat = ref(false);
+// 3. Navigation Methods
+const next = () => {
+  if (currentIndex.value < selectedOptions.value.length - 1) {
+    currentIndex.value++;
+  } else showZakat.value = true;
+};
+
+const prev = () => {
+  const bool = currentIndex.value == selectedOptions.value.length - 1;
+  if (currentIndex.value > 0) {
+    showZakat.value = false;
+    currentIndex.value--;
+  } else if (bool) {
+    showZakat.value = false;
+  } else {
+    start.value = 0;
+    currentIndex.value = 0;
+    showZakat.value = false;
+  }
+};
+
+const start = ref(0);
 
 const selectOption = (id) => {
   options.value = options.value.map((option) => ({
@@ -73,8 +82,7 @@ const selectOption = (id) => {
     selected: option.id === id ? !option.selected : option.selected,
   }));
 };
-const steps = [1, 2, 3, 4, 5];
-const previewStep = ref(1);
+
 const BASE_URL = "https://golddinar-api-staging.inaia.cloud/api/v1/";
 const getGoldPrice = async () => {
   try {
@@ -189,11 +197,14 @@ const nextPreviewStep = () => {
   countStore.nextPreviewState();
 };
 const restart = () => {
-  currentStep.value = 1;
+  // currentStep.value = 1;
   form.money = null;
   form.goldWeight = null;
   form.silverWeight = null;
   form.debts = null;
+  showZakat.value = false;
+  start.value = 0;
+  currentIndex.value = 0;
   options.value.forEach((option) => (option.selected = false));
 };
 
@@ -268,15 +279,22 @@ onMounted(() => {
       </section>
 
       <section v-else>
-        <div class="progress-container">
-          <div
-            v-for="step in steps"
-            :key="step"
-            :class="['step-dot', { active: currentStep >= step }]"
-          ></div>
+        <div class="header" v-if="currentStep && start && !showZakat">
+          <div class="step-counter">
+            Step {{ currentIndex + 1 }} of {{ selectedOptions.length }}
+          </div>
+          <div class="progress-bar">
+            <div
+              class="fill"
+              :style="{
+                width:
+                  ((currentIndex + 1) / selectedOptions.length) * 100 + '%',
+              }"
+            ></div>
+          </div>
         </div>
 
-        <div v-if="currentStep === 1" class="fade-in">
+        <div class="fade-in" v-if="start == 0">
           <h2 class="step-title">{{ $t("below_are_what_applies_to_you") }}</h2>
           <p class="step-desc">
             {{ $t("below_you_will_see_assets_subject_to_zakat") }}
@@ -298,162 +316,221 @@ onMounted(() => {
           </div>
         </div>
 
-        <section>
-          <div class="fade-in" v-if="currentStep == 3">
-            <h2 class="step-title">
-              {{ $t("enter_the_amount_of_money_you_currently_have") }}
-            </h2>
-            <p class="step-desc">
-              {{ $t("enter_the_total_amount_of_your_assets") }}.
-            </p>
-            <BaseZakatInput
-              v-model="form.money"
-              :label="$t('enter_amount')"
-              prefix="€"
-              placeholder="0.00"
-            />
-          </div>
-
-          <div class="fade-in" v-else-if="currentStep == 2">
-            <header>
-              <h2 class="step-title">{{ $t("enter_gold_silver_value") }}</h2>
-              <p>
-                {{
-                  $t(
-                    "enter_the_current_market_value_of_your_gold_and_silver_holdings_here",
-                  )
-                }}
-                {{
-                  $t(
-                    "if_you_dont_know_the_value_you_can_also_enter_the_weight_in_grams_switch_to_grams_to_do_this",
-                  )
-                }}
-              </p>
-            </header>
-            <div class="flex justify-end mt-4">
-              <div class="tab-container">
-                <button
-                  @click="setUnit('euro')"
-                  :class="[
-                    'tab-btn px-2 py-1',
-                    { 'active-tab': metalUnit === 'euro' },
-                  ]"
-                >
-                  €
-                </button>
-                <button
-                  @click="setUnit('gram')"
-                  :class="[
-                    'tab-btn p-1',
-                    { 'active-tab': metalUnit === 'gram' },
-                  ]"
-                >
-                  g
-                </button>
-              </div>
-            </div>
-            <div class="form-grid">
-              <BaseZakatInput
-                v-model="form.goldWeight"
-                :label="
-                  metalUnit === 'euro' ? $t('gold_value') : $t('gold_weight')
-                "
-                :prefix="metalUnit === 'euro' ? '€' : 'g'"
-                :placeholder="metalUnit === 'euro' ? '0.00' : '0.0'"
-              />
-              <BaseZakatInput
-                v-model="form.silverWeight"
-                :label="
-                  metalUnit === 'euro'
-                    ? $t('silver_value')
-                    : $t('silver_weight')
-                "
-                :prefix="metalUnit === 'euro' ? '€' : 'g'"
-                :placeholder="metalUnit === 'euro' ? '0.00' : '0.0'"
-              />
-            </div>
-          </div>
-          <div class="fade-in" v-else-if="currentStep == 4">
-            <header>
+        <template v-if="selectedOptions.length > 0 && start == 1">
+          <section v-if="!showZakat">
+            <div class="fade-in" v-if="currentStep.id == 2">
               <h2 class="step-title">
-                {{ $t("your_deductible_debts") }}
+                {{ $t("enter_the_amount_of_money_you_currently_have") }}
               </h2>
-              <p>{{ $t("certain_debts_can_be_deducted") }}.</p>
-            </header>
-
-            <div class="mt-8">
+              <p class="step-desc">
+                {{ $t("enter_the_total_amount_of_your_assets") }}.
+              </p>
               <BaseZakatInput
-                v-model="form.debts"
-                :label="$t('total_amount_owed_to_others')"
-                :prefix="'€'"
+                v-model="form.money"
+                :label="$t('enter_amount')"
+                prefix="€"
                 placeholder="0.00"
               />
-              <p class="text-xs">{{ $t("outstanding_liabilities") }}</p>
+            </div>
+
+            <div class="fade-in" v-else-if="currentStep.id == 1">
+              <header>
+                <h2 class="step-title">{{ $t("enter_gold_silver_value") }}</h2>
+                <p>
+                  {{
+                    $t(
+                      "enter_the_current_market_value_of_your_gold_and_silver_holdings_here",
+                    )
+                  }}
+                  {{
+                    $t(
+                      "if_you_dont_know_the_value_you_can_also_enter_the_weight_in_grams_switch_to_grams_to_do_this",
+                    )
+                  }}
+                </p>
+              </header>
+              <div class="flex justify-end mt-4">
+                <div class="tab-container">
+                  <button
+                    @click="setUnit('euro')"
+                    :class="[
+                      'tab-btn px-2 py-1',
+                      { 'active-tab': metalUnit === 'euro' },
+                    ]"
+                  >
+                    €
+                  </button>
+                  <button
+                    @click="setUnit('gram')"
+                    :class="[
+                      'tab-btn p-1',
+                      { 'active-tab': metalUnit === 'gram' },
+                    ]"
+                  >
+                    g
+                  </button>
+                </div>
+              </div>
+              <div class="form-grid">
+                <BaseZakatInput
+                  v-model="form.goldWeight"
+                  :label="
+                    metalUnit === 'euro' ? $t('gold_value') : $t('gold_weight')
+                  "
+                  :prefix="metalUnit === 'euro' ? '€' : 'g'"
+                  :placeholder="metalUnit === 'euro' ? '0.00' : '0.0'"
+                />
+                <BaseZakatInput
+                  v-model="form.silverWeight"
+                  :label="
+                    metalUnit === 'euro'
+                      ? $t('silver_value')
+                      : $t('silver_weight')
+                  "
+                  :prefix="metalUnit === 'euro' ? '€' : 'g'"
+                  :placeholder="metalUnit === 'euro' ? '0.00' : '0.0'"
+                />
+              </div>
+            </div>
+            <div class="fade-in" v-else-if="currentStep.id == 3">
+              <header>
+                <h2 class="step-title">
+                  {{ $t("your_deductible_debts") }}
+                </h2>
+                <p>{{ $t("certain_debts_can_be_deducted") }}.</p>
+              </header>
+
+              <div class="mt-8">
+                <BaseZakatInput
+                  v-model="form.debts"
+                  :label="$t('total_amount_owed_to_others')"
+                  :prefix="'€'"
+                  placeholder="0.00"
+                />
+                <p class="text-xs">{{ $t("outstanding_liabilities") }}</p>
+              </div>
+            </div>
+            <div class="fade-in" v-else-if="currentStep.id == 6">
+              <header>
+                <h2 class="step-title">Stocks</h2>
+                <p>{{ $t("certain_debts_can_be_deducted") }}.</p>
+              </header>
+
+              <div class="mt-8">
+                <BaseZakatInput
+                  v-model="form.debts"
+                  :label="$t('total_amount_owed_to_others')"
+                  :prefix="'€'"
+                  placeholder="0.00"
+                />
+                <p class="text-xs">{{ $t("outstanding_liabilities") }}</p>
+              </div>
+            </div>
+            <div class="fade-in" v-else-if="currentStep.id == 5">
+              <header>
+                <h2 class="step-title">Crypto</h2>
+                <p>{{ $t("certain_debts_can_be_deducted") }}.</p>
+              </header>
+
+              <div class="mt-8">
+                <BaseZakatInput
+                  v-model="form.debts"
+                  :label="$t('total_amount_owed_to_others')"
+                  :prefix="'€'"
+                  placeholder="0.00"
+                />
+                <p class="text-xs">{{ $t("outstanding_liabilities") }}</p>
+              </div>
+            </div>
+          </section>
+
+          <div v-if="showZakat" class="fade-in">
+            <h2 class="step-title">{{ $t("your_zakat_calculation") }}</h2>
+            <div class="result-box">
+              <div class="row">
+                <span>{{ $t("total_assets") }}:</span>
+                <span>{{ formatCurrency(totalNetWorth) }}</span>
+              </div>
+              <div class="row" v-if="debts">
+                <span>{{ $t("minus_debts") }}:</span>
+                <span>-{{ formatCurrency(debts) }}</span>
+              </div>
+            </div>
+
+            <div class="nisab-status" v-if="showZakat">
+              <p class="nisab-title">
+                <span class="bold">{{ $t("current_nisab") }}</span>
+              </p>
+              <div class="nisab-title result-box">
+                <span
+                  style="border-right: 1px solid; padding: 1rem"
+                  class="pl-2"
+                  >Gold: <span class="bold">{{ GOLD_NISAB_GRAMS }}</span
+                  >g/ {{ formatCurrency(goldNisabThreshold) }}</span
+                >
+
+                <span class="pl-2"
+                  >Silver: <span class="bold">{{ SILVER_NISAB_GRAMS }}</span
+                  >g/ {{ formatCurrency(silverNisabThreshold) }}</span
+                >
+              </div>
+              <div v-if="isZakatDue" class="zakat-badge due">
+                {{ $t("the_zakat_percentage_on_your_wealth_is") }}:<span
+                  class="pl-2"
+                  style="font-size: 20px"
+                  >{{ formatCurrency(zakatPayableEUR) }}</span
+                >
+              </div>
+              <div v-else class="zakat-badge exempt">
+                {{ $t("below_nisab_threshold") }}
+              </div>
             </div>
           </div>
-        </section>
 
-        <div v-if="currentStep === 5" class="fade-in">
-          <h2 class="step-title">{{ $t("your_zakat_calculation") }}</h2>
-          <div class="result-box">
-            <div class="row">
-              <span>{{ $t("total_assets") }}:</span>
-              <span>{{ formatCurrency(totalNetWorth) }}</span>
-            </div>
-            <div class="row" v-if="debts">
-              <span>{{ $t("minus_debts") }}:</span>
-              <span>-{{ formatCurrency(debts) }}</span>
-            </div>
+          <div class="nav-buttons">
+            <button
+              v-if="appPreviewState == 0"
+              @click="prev"
+              class="btn-primary calculate-btn"
+            >
+              <ArrowIcon :right="true" />
+              {{ $t("previous") }}
+            </button>
+            <div v-else></div>
+            <button
+              v-if="currentIndex < selectedOptions.length && !showZakat"
+              @click="next"
+              class="btn-primary flex gap-2 calculate-btn"
+            >
+              {{
+                currentIndex == selectedOptions.length - 1
+                  ? $t("look_at_my_calculation")
+                  : $t("next")
+              }}
+              <ArrowIcon />
+            </button>
+            <button v-else @click="restart" class="btn-primary calculate-btn">
+              {{ $t("reset") }}
+              <ArrowIcon />
+            </button>
           </div>
-
-          <div class="nisab-status">
-            <p class="nisab-title">
-              <span class="bold">{{ $t("current_nisab") }}</span>
-            </p>
-            <div class="nisab-title result-box">
-              <span style="border-right: 1px solid; padding: 1rem" class="pl-2"
-                >Gold: <span class="bold">{{ GOLD_NISAB_GRAMS }}</span
-                >g/ {{ formatCurrency(goldNisabThreshold) }}</span
-              >
-
-              <span class="pl-2"
-                >Silver: <span class="bold">{{ SILVER_NISAB_GRAMS }}</span
-                >g/ {{ formatCurrency(silverNisabThreshold) }}</span
-              >
-            </div>
-            <div v-if="isZakatDue" class="zakat-badge due">
-              {{ $t("the_zakat_percentage_on_your_wealth_is") }}:<span
-                class="pl-2"
-                style="font-size: 20px"
-                >{{ formatCurrency(zakatPayableEUR) }}</span
-              >
-            </div>
-            <div v-else class="zakat-badge exempt">
-              {{ $t("below_nisab_threshold") }}
-            </div>
-          </div>
-        </div>
-
-        <div class="nav-buttons">
+        </template>
+        <div
+          v-else
+          class=""
+          style="
+            display: flex;
+            justify-content: end;
+            align-items: center;
+            margin-top: 30px;
+          "
+        >
           <button
-            v-if="currentStep > 1"
-            @click="prevStep"
-            class="btn-primary calculate-btn"
-          >
-            <ArrowIcon :right="true" />
-            {{ $t("previous") }}
-          </button>
-          <div v-else></div>
-          <button
-            v-if="currentStep < 5"
-            @click="nextStep"
+            @click="start = 1"
+            :disabled="!selectedOptions.length"
             class="btn-primary flex gap-2 calculate-btn"
           >
-            {{ currentStep === 4 ? $t("look_at_my_calculation") : $t("next") }}
-            <ArrowIcon />
-          </button>
-          <button v-else @click="restart" class="btn-primary calculate-btn">
-            {{ $t("reset") }}
+            {{ selectedOptions.length === 0 ? "Select to proceed" : "Next" }}
             <ArrowIcon />
           </button>
         </div>
@@ -741,5 +818,20 @@ onMounted(() => {
 .inactive-tab {
   border: 1px solid #00c8ff;
   color: #006de3;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #eee;
+  border-radius: 10px;
+  margin: 10px 0 25px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: #4a90e2;
+  transition: width 0.3s ease;
 }
 </style>
