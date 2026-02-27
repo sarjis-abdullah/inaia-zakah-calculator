@@ -47,5 +47,11 @@
   "silver_weight": "Silver Weight",
   "Gold and Silver": "Gold and Silver",
   "Money / Savings": "Money / Savings",
-  "Deductible Debts": "Deductible Debts"
+  "Deductible Debts": "Deductible Debts",
+  "if_you_own_stocks": "If you own stocks, you are obligated to pay Zakat on them. Please enter the current market value of these investments below.",
+  "what_is_the_value_of_your_stocks": "What is the value of your stocks/funds/ETFs?",
+  "your_crypto_assets": "Your crypto assets",
+  "enter_crypto_value": "Enter the current total value of your cryptocurrencies in euros.",
+  "crypto_value": "Crypto Value",
+  "stocks_value": "Stocks Value"
 }

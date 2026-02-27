@@ -47,5 +47,11 @@
   "silver_weight": "Poids de l'argent",
   "Gold and Silver": "Or et Argent",
   "Money / Savings": "Argent / Épargne",
-  "Deductible Debts": "Dettes Déductibles"
+  "Deductible Debts": "Dettes Déductibles",
+  "if_you_own_stocks": "Si vous possédez des actions, vous êtes tenu de payer la Zakat sur celles-ci. Veuillez saisir la valeur marchande actuelle de ces investissements ci-dessous.",
+  "what_is_the_value_of_your_stocks": "Quelle est la valeur de vos actions/fonds/ETF ?",
+  "your_crypto_assets": "Vos actifs crypto",
+  "enter_crypto_value": "Saisissez la valeur totale actuelle de vos crypto-monnaies en euros.",
+  "crypto_value": "Valeur Crypto",
+  "stocks_value": "Valeur des Actions"
 }

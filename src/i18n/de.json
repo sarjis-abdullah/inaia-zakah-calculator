@@ -47,5 +47,11 @@
   "silver_weight": "Silbergewicht",
   "Gold and Silver": "Gold und Silber",
   "Money / Savings": "Geld / Ersparnisse",
-  "Deductible Debts": "Abzugsfähige Schulden"
+  "Deductible Debts": "Abzugsfähige Schulden",
+  "if_you_own_stocks": "Wenn du Aktien besitzt, bist du verpflichtet, Zakat darauf zu zahlen. Gib unten bitte den aktuellen Marktwert dieser Anlagen an.",
+  "what_is_the_value_of_your_stocks": "Was ist der Wert deiner Aktien/Fonds/ETFs?",
+  "your_crypto_assets": "Deine Krypto-vermögenswerte",
+  "enter_crypto_value": "Trage den aktuellen Gesamtwert deiner Kryptowährungen in Euro ein.",
+  "crypto_value": "Krypto-Wert",
+  "stocks_value": "Aktien-Wert"
 }

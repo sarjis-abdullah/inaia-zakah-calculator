@@ -21,7 +21,8 @@ const form = reactive({
   goldWeight: null,
   silverWeight: null,
   debts: null,
-  debts2: null,
+  cryptoValue: null,
+  stocksValue: null,
 });
 
 // 3. Navigation
@@ -160,7 +161,9 @@ const totalNetWorth = computed(() => {
   const gold = parseFloat(goldEquivalentCurrencyValue.value) || 0;
   const silver = parseFloat(silverEquivalentCurrencyValue.value) || 0;
   const cash = parseFloat(form.money) || 0;
-  const total = gold + silver + cash - debts.value;
+  const crypto = parseFloat(form.cryptoValue) || 0;
+  const stocks = parseFloat(form.stocksValue) || 0;
+  const total = gold + silver + cash + crypto + stocks - debts.value;
   return total.toFixed(2);
 });
 
@@ -412,34 +415,34 @@ onMounted(() => {
             </div>
             <div class="fade-in" v-else-if="currentStep.id == 6">
               <header>
-                <h2 class="step-title">Stocks</h2>
-                <p>{{ $t("certain_debts_can_be_deducted") }}.</p>
+                <h2 class="step-title">
+                  {{ $t("what_is_the_value_of_your_stocks") }}
+                </h2>
+                <p>{{ $t("if_you_own_stocks") }}.</p>
               </header>
 
               <div class="mt-8">
                 <BaseZakatInput
-                  v-model="form.debts"
-                  :label="$t('total_amount_owed_to_others')"
+                  v-model="form.stocksValue"
+                  :label="$t('enter_amount')"
                   :prefix="'€'"
                   placeholder="0.00"
                 />
-                <p class="text-xs">{{ $t("outstanding_liabilities") }}</p>
               </div>
             </div>
             <div class="fade-in" v-else-if="currentStep.id == 5">
               <header>
-                <h2 class="step-title">Crypto</h2>
-                <p>{{ $t("certain_debts_can_be_deducted") }}.</p>
+                <h2 class="step-title">{{ $t("your_crypto_assets") }}</h2>
+                <p>{{ $t("enter_crypto_value") }}</p>
               </header>
 
               <div class="mt-8">
                 <BaseZakatInput
-                  v-model="form.debts"
-                  :label="$t('total_amount_owed_to_others')"
+                  v-model="form.cryptoValue"
+                  :label="$t('enter_amount')"
                   :prefix="'€'"
                   placeholder="0.00"
                 />
-                <p class="text-xs">{{ $t("outstanding_liabilities") }}</p>
               </div>
             </div>
           </section>
@@ -554,6 +557,14 @@ onMounted(() => {
           <div v-if="form.money" class="overview-row">
             <span>{{ $t("money") }}</span>
             <span>{{ formatCurrency(form.money) }}</span>
+          </div>
+          <div v-if="form.cryptoValue" class="overview-row">
+            <span>{{ $t("crypto_value") }}</span>
+            <span>{{ formatCurrency(form.cryptoValue) }}</span>
+          </div>
+          <div v-if="form.stocksValue" class="overview-row">
+            <span>{{ $t("stocks_value") }}</span>
+            <span>{{ formatCurrency(form.stocksValue) }}</span>
           </div>
           <div v-if="debts" class="overview-row">
             <span>{{ $t("debts") }}</span>
