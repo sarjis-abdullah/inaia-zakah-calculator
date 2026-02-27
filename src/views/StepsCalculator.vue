@@ -50,6 +50,21 @@ const options = ref([
     id: 3,
     selected: false,
   },
+  {
+    title: t("Shares and Investments"),
+    id: 4,
+    selected: false,
+  },
+  {
+    title: t("Crypto"),
+    id: 5,
+    selected: false,
+  },
+  {
+    title: t("Stocks"),
+    id: 6,
+    selected: false,
+  },
 ]);
 
 const selectOption = (id) => {
@@ -273,8 +288,10 @@ onMounted(() => {
             <button
               v-for="value in options"
               @click="selectOption(value.id)"
-              :class="['tab-btn p-3 active-tab']"
-              style="border: 1px solid white"
+              :class="[
+                'tab-btn p-3',
+                value.selected ? 'active-tab' : 'inactive-tab',
+              ]"
             >
               {{ value.title }}
             </button>
@@ -442,8 +459,8 @@ onMounted(() => {
         </div>
       </section>
     </div>
-    <section class="zakat-card" v-if="currentStep > 1">
-      <div class="fade-in">
+    <section class="">
+      <div class="zakat-card fade-in">
         <h2 class="overview-title">{{ $t("overview_of_calculation") }}</h2>
 
         <div class="result-box">
